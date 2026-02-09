@@ -13,6 +13,17 @@ import IrrigationControl from './pages/IrrigationControl';
 import Analytics from './pages/Analytics';
 import Community from './pages/Community';
 import AIAssistant from './pages/AIAssistant';
+import AdminPanel from './pages/AdminPanel';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
+import AdminOrders from './pages/AdminOrders';
+import AdminPayments from './pages/AdminPayments';
+import AdminDevices from './pages/AdminDevices';
+import AdminMonitor from './pages/AdminMonitor';
+import AdminSystems from './pages/AdminSystems';
+import AdminMapView from './pages/AdminMapView';
+import AdminAlerts from './pages/AdminAlerts';
+import AdminSystemDetails from './pages/AdminSystemDetails';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -25,15 +36,42 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
-// Public Route Component
-const PublicRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+// Admin Route Component
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, user, loading } = useAuth();
 
   if (loading) {
     return <Loader fullScreen />;
   }
 
-  return !isAuthenticated ? children : <Navigate to="/dashboard" />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  if (user?.role !== 'admin') {
+    return <Navigate to="/dashboard" />;
+  }
+
+  return children;
+};
+
+// Public Route Component
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated, user, loading } = useAuth();
+
+  if (loading) {
+    return <Loader fullScreen />;
+  }
+
+  if (isAuthenticated) {
+    // Redirect to appropriate dashboard based on role
+    if (user?.role === 'admin') {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
 };
 
 function App() {
@@ -129,9 +167,107 @@ function App() {
                 }
               />
 
-              {/* Redirect */}
-              <Route path="/" element={<Navigate to="/dashboard" />} />
-              <Route path="*" element={<Navigate to="/dashboard" />} />
+              {/* Admin Routes */}
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <AdminRoute>
+                    <AdminUsers />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/orders"
+                element={
+                  <AdminRoute>
+                    <AdminOrders />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/payments"
+                element={
+                  <AdminRoute>
+                    <AdminPayments />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/devices"
+                element={
+                  <AdminRoute>
+                    <AdminDevices />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/monitor"
+                element={
+                  <AdminRoute>
+                    <AdminMonitor />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/panel"
+                element={
+                  <AdminRoute>
+                    <AdminPanel />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/systems"
+                element={
+                  <AdminRoute>
+                    <AdminSystems />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/map"
+                element={
+                  <AdminRoute>
+                    <AdminMapView />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/alerts"
+                element={
+                  <AdminRoute>
+                    <AdminAlerts />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/system/:id"
+                element={
+                  <AdminRoute>
+                    <AdminSystemDetails />
+                  </AdminRoute>
+                }
+              />
+
+              {/* Redirect - No opening page, straight to dashboard */}
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </div>
         </SocketProvider>

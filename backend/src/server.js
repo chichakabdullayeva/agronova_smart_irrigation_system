@@ -3,7 +3,7 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const morgan = require('morgan');
-const connectDB = require('./config/database');
+const { connectDB } = require('./config/database');
 const { initializeSocket } = require('./config/socket');
 const sensorService = require('./services/sensorService');
 
@@ -28,6 +28,8 @@ app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/admin/systems', require('./routes/adminSystems'));
 app.use('/api/sensors', require('./routes/sensors'));
 app.use('/api/irrigation', require('./routes/irrigation'));
 app.use('/api/alerts', require('./routes/alerts'));

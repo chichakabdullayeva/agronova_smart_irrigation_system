@@ -1,10 +1,12 @@
 const SensorData = require('../models/SensorData');
+const { isDatabaseConnected } = require('../config/database');
 
 // Simulate IoT sensor data generation
 class SensorService {
   constructor() {
     this.isRunning = false;
     this.interval = null;
+    this.lastData = null; // Store last data for demo mode
   }
 
   // Start simulating sensor data
@@ -44,8 +46,16 @@ class SensorService {
 
   // Generate realistic sensor data
   async generateSensorData() {
-    // Get previous data for continuity
-    const previousData = await SensorData.findOne().sort({ timestamp: -1 });
+    let previousData = this.lastData;
+    
+    // Try to get from database if connected
+    if (isDatabaseConnected()) {
+      try {
+        previousData = await SensorData.findOne().sort({ timestamp: -1 });
+      } catch (error) {
+        // Use lastData if database query fails
+      }
+    }
 
     let soilMoisture, temperature, humidity, waterTankLevel, batteryLevel;
 
@@ -65,7 +75,7 @@ class SensorService {
       batteryLevel = this.randomBetween(80, 100);
     }
 
-    const data = await SensorData.create({
+    const dataObject = {
       soilMoisture: Math.round(soilMoisture * 10) / 10,
       temperature: Math.round(temperature * 10) / 10,
       humidity: Math.round(humidity * 10) / 10,
@@ -73,9 +83,24 @@ class SensorService {
       pumpStatus: previousData ? previousData.pumpStatus : 'OFF',
       solarPanelStatus: this.getSolarStatus(),
       solarPanelAngle: this.getSolarAngle(),
-      batteryLevel: Math.round(batteryLevel * 10) / 10
-    });
+      batteryLevel: Math.round(batteryLevel * 10) / 10,
+      timestamp: new Date()
+    };
 
+    // Save to database if connected, otherwise just use in memory
+    let data;
+    if (isDatabaseConnected()) {
+      try {
+        data = await SensorData.create(dataObject);
+      } catch (error) {
+        data = dataObject;
+      }
+    } else {
+      data = dataObject;
+    }
+
+    // Store for next iteration
+    this.lastData = data;
     return data;
   }
 

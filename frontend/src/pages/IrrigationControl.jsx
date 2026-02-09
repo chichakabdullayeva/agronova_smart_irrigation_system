@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../components/common/Navbar';
-import Sidebar from '../components/common/Sidebar';
+import Layout from '../components/common/Layout';
 import AutoMode from '../components/irrigation/AutoMode';
 import ManualMode from '../components/irrigation/ManualMode';
 import Card from '../components/common/Card';
@@ -59,36 +58,33 @@ const IrrigationControl = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Sidebar />
-      <div className="ml-64">
-        <Navbar title="Irrigation Control" />
-        <div className="p-8 mt-16">
-          {/* Mode Selector */}
-          <div className="mb-8">
-            <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
-              <button
-                onClick={() => handleModeToggle('AUTOMATIC')}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                  currentMode === 'AUTOMATIC'
-                    ? 'bg-primary-600 text-white'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Automatic Mode
-              </button>
-              <button
-                onClick={() => handleModeToggle('MANUAL')}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                  currentMode === 'MANUAL'
-                    ? 'bg-primary-600 text-white'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Manual Mode
-              </button>
-            </div>
+    <Layout title="Irrigation Control">
+      <div className="bg-gray-50">
+        {/* Mode Selector */}
+        <div className="mb-8">
+          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+            <button
+              onClick={() => handleModeToggle('AUTOMATIC')}
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                currentMode === 'AUTOMATIC'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Automatic Mode
+            </button>
+            <button
+              onClick={() => handleModeToggle('MANUAL')}
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                currentMode === 'MANUAL'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Manual Mode
+            </button>
           </div>
+        </div>
 
           {/* Mode Content */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -138,20 +134,19 @@ const IrrigationControl = () => {
                 <p className="text-gray-500">Loading statistics...</p>
               )}
             </Card>
-          </div>
+        </div>
 
-          {/* Info */}
-          <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-            <h4 className="font-semibold text-yellow-900 mb-2">💡 Tip</h4>
-            <p className="text-yellow-800">
-              <strong>Automatic Mode:</strong> System monitors soil moisture and activates irrigation when needed.
-              <br />
-              <strong>Manual Mode:</strong> You have full control over the pump with timer options.
-            </p>
-          </div>
+        {/* Info */}
+        <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+          <h4 className="font-semibold text-yellow-900 mb-2">💡 Tip</h4>
+          <p className="text-yellow-800">
+            <strong>Automatic Mode:</strong> System monitors soil moisture and activates irrigation when needed.
+            <br />
+            <strong>Manual Mode:</strong> You have full control over the pump with timer options.
+          </p>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

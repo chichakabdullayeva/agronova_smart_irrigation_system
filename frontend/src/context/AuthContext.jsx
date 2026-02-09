@@ -43,26 +43,34 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setIsAuthenticated(true);
       toast.success('Welcome back!');
-      return true;
+      return { success: true, user: userData };
     } catch (error) {
       const message = error.response?.data?.message || 'Login failed';
       toast.error(message);
-      return false;
+      return { success: false };
     }
   };
 
   const register = async (data) => {
     try {
       const response = await authAPI.register(data);
-      const { token, ...userData } = response.data.data;
       
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      if (response.data.success) {
+        const { token, ...userData } = response.data.data;
+        
+        // Store token and user data
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Update state
+        setUser(userData);
+        setIsAuthenticated(true);
+        
+        toast.success('Account created successfully!');
+        return true;
+      }
       
-      setUser(userData);
-      setIsAuthenticated(true);
-      toast.success('Account created successfully!');
-      return true;
+      return false;
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed';
       toast.error(message);

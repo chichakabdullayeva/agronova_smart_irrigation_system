@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -88,6 +88,32 @@ export const communityAPI = {
 // AI API
 export const aiAPI = {
   chat: (data) => api.post('/ai/chat', data),
+};
+
+// Admin API
+export const adminAPI = {
+  getAllUsers: () => api.get('/admin/users'),
+  getUser: (id) => api.get(`/admin/users/${id}`),
+  promoteToAdmin: (id) => api.patch(`/admin/users/${id}/promote`),
+  demoteToUser: (id) => api.patch(`/admin/users/${id}/demote`),
+  deleteUser: (id) => api.delete(`/admin/users/${id}`),
+};
+
+// Admin System API
+export const adminSystemAPI = {
+  getDashboardStats: () => api.get('/admin/systems/stats'),
+  getAllSystems: (filters = {}) => {
+    const params = new URLSearchParams(filters);
+    return api.get(`/admin/systems/systems?${params}`);
+  },
+  getSystemById: (id) => api.get(`/admin/systems/system/${id}`),
+  getSystemLogs: (systemId, limit = 50) => api.get(`/admin/systems/logs/${systemId}?limit=${limit}`),
+  getAlerts: (filters = {}) => {
+    const params = new URLSearchParams(filters);
+    return api.get(`/admin/systems/alerts?${params}`);
+  },
+  markAlertRead: (id) => api.patch(`/admin/systems/alert/${id}/read`),
+  resolveAlert: (id) => api.patch(`/admin/systems/alert/${id}/resolve`),
 };
 
 export default api;
