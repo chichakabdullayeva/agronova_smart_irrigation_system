@@ -8,21 +8,16 @@ const getMockOrders = () => [
   {
     _id: 'demo_order_001',
     orderId: 'ORD-2026-001',
-    user: {
-      _id: 'admin_001',
-      name: 'Admin User',
-      email: 'admin@agranova.com',
-      region: 'Baku'
-    },
-    device: {
-      _id: 'demo_device_001',
-      name: 'Soil Moisture Sensor',
-      model: 'SMS-100',
-      price: 45.99
-    },
+    userId: 'admin_001',
+    userName: 'Admin User',
+    userEmail: 'admin@agranova.com',
+    deviceName: 'Soil Moisture Sensor',
+    deviceId: 'demo_device_001',
+    model: 'SMS-100',
     quantity: 2,
+    price: 45.99,
     totalPrice: 91.98,
-    status: 'pending',
+    status: 'delivered',
     paymentStatus: 'paid',
     paymentMethod: 'card',
     shippingAddress: {
@@ -38,19 +33,14 @@ const getMockOrders = () => [
   {
     _id: 'demo_order_002',
     orderId: 'ORD-2026-002',
-    user: {
-      _id: 'admin_001',
-      name: 'Admin User',
-      email: 'admin@agranova.com',
-      region: 'Baku'
-    },
-    device: {
-      _id: 'demo_device_002',
-      name: 'Smart Irrigation Controller',
-      model: 'SIC-200',
-      price: 129.99
-    },
+    userId: 'admin_001',
+    userName: 'Admin User',
+    userEmail: 'admin@agranova.com',
+    deviceName: 'Smart Irrigation Controller',
+    deviceId: 'demo_device_002',
+    model: 'SIC-200',
     quantity: 1,
+    price: 129.99,
     totalPrice: 129.99,
     status: 'processing',
     paymentStatus: 'paid',
@@ -80,7 +70,7 @@ exports.getOrders = async (req, res) => {
       
       // Apply filters to mock data
       if (req.user.role !== 'admin') {
-        mockOrders = mockOrders.filter(o => o.user._id === req.user.id);
+        mockOrders = mockOrders.filter(o => o.userId === req.user._id);
       }
       if (status) {
         mockOrders = mockOrders.filter(o => o.status === status);
