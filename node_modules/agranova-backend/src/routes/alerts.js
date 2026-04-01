@@ -2,10 +2,44 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
 const Alert = require('../models/Alert');
+const { isDatabaseConnected } = require('../config/database');
 
 // Get all alerts
 router.get('/', protect, async (req, res) => {
   try {
+    // If database is not connected, return mock data
+    if (!isDatabaseConnected()) {
+      const mockAlerts = [
+        {
+          _id: 'demo_alert_001',
+          title: 'High Moisture Level',
+          description: 'Soil moisture is above 90%',
+          type: 'warning',
+          severity: 'medium',
+          isRead: false,
+          timestamp: new Date(),
+          systemId: 'demo_system_001'
+        },
+        {
+          _id: 'demo_alert_002',
+          title: 'Low Battery',
+          description: 'Solar panel battery: 25%',
+          type: 'warning',
+          severity: 'high',
+          isRead: false,
+          timestamp: new Date(Date.now() - 3600000),
+          systemId: 'demo_system_001'
+        }
+      ];
+
+      return res.status(200).json({
+        success: true,
+        count: mockAlerts.length,
+        data: mockAlerts,
+        _note: 'Running in demo mode - data is simulated'
+      });
+    }
+
     const alerts = await Alert.find().sort({ timestamp: -1 }).limit(50);
     
     res.status(200).json({

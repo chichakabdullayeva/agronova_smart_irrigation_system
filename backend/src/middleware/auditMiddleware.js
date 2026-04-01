@@ -63,14 +63,25 @@ const logResponseAudit = (req, res, next) => {
       if (req.method === 'PUT' || req.method === 'PATCH') action = 'UPDATE';
       if (req.method === 'DELETE') action = 'DELETE';
 
-      req.logBehavior({
-        action: `${action}_SUCCESS`,
-        category: 'USER_ACTIVITY',
-        description: `${req.method} ${req.originalUrl}`,
-        result: 'SUCCESS',
-        executionTimeMs,
-        severity: 'LOW'
-      }).catch(err => console.error('Failed to log response audit:', err));
+      // Use a timeout to prevent audit logging from blocking requests when DB is down
+      const auditPromise = Promise.race([
+        req.logBehavior({
+          action: `${action}_SUCCESS`,
+          category: 'USER_ACTIVITY',
+          description: `${req.method} ${req.originalUrl}`,
+          result: 'SUCCESS',
+          executionTimeMs,
+          severity: 'LOW'
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Audit timeout')), 2000))
+      ]);
+
+      auditPromise.catch(err => {
+        // Silently fail - don't block the response
+        if (process.env.DEBUG_AUDIT === 'true') {
+          console.error('Failed to log response audit:', err.message);
+        }
+      });
     }
 
     return originalJson.call(this, data);
@@ -86,15 +97,26 @@ const logErrorAudit = (err, req, res, next) => {
   if (req.auditContext) {
     const executionTimeMs = Date.now() - req.auditContext.startTime;
 
-    req.logBehavior({
-      action: 'ERROR',
-      category: 'SYSTEM_EVENT',
-      description: `Error on ${req.method} ${req.originalUrl}`,
-      result: 'FAILED',
-      errorDetails: err.message,
-      executionTimeMs,
-      severity: 'HIGH'
-    }).catch(err => console.error('Failed to log error audit:', err));
+    // Use a timeout to prevent audit logging from blocking error responses
+    const auditPromise = Promise.race([
+      req.logBehavior({
+        action: 'ERROR',
+        category: 'SYSTEM_EVENT',
+        description: `Error on ${req.method} ${req.originalUrl}`,
+        result: 'FAILED',
+        errorDetails: err.message,
+        executionTimeMs,
+        severity: 'HIGH'
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Audit timeout')), 2000))
+    ]);
+
+    auditPromise.catch(err => {
+      // Silently fail - don't block error responses
+      if (process.env.DEBUG_AUDIT === 'true') {
+        console.error('Failed to log error audit:', err.message);
+      }
+    });
   }
 
   next(err);

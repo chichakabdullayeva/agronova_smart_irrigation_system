@@ -1,10 +1,36 @@
 const SensorData = require('../models/SensorData');
 const Alert = require('../models/Alert');
 const { getIO } = require('../config/socket');
+const { isDatabaseConnected } = require('../config/database');
+
+// Demo data for when database is unavailable
+const getMockSensorData = () => ({
+  _id: 'demo_' + Date.now(),
+  moisture: (Math.random() * 100).toFixed(2),
+  temperature: (20 + Math.random() * 15).toFixed(2),
+  humidity: (40 + Math.random() * 40).toFixed(2),
+  pumpStatus: Math.random() > 0.5,
+  waterLevel: (Math.random() * 100).toFixed(2),
+  solarPanel: {
+    angle: (Math.random() * 90).toFixed(2),
+    batteryLevel: (50 + Math.random() * 50).toFixed(2)
+  },
+  timestamp: new Date(),
+  systemId: 'demo_system_001'
+});
 
 // Get latest sensor data
 exports.getLatestData = async (req, res) => {
   try {
+    // If database is not connected, return mock data
+    if (!isDatabaseConnected()) {
+      return res.status(200).json({
+        success: true,
+        data: getMockSensorData(),
+        _note: 'Running in demo mode - data is simulated'
+      });
+    }
+
     const latestData = await SensorData.findOne().sort({ timestamp: -1 });
     
     if (!latestData) {
@@ -30,6 +56,21 @@ exports.getLatestData = async (req, res) => {
 exports.getHistory = async (req, res) => {
   try {
     const { period = '24h' } = req.query;
+    
+    // If database is not connected, return mock data
+    if (!isDatabaseConnected()) {
+      const mockData = Array.from({ length: 24 }, (_, i) => ({
+        ...getMockSensorData(),
+        timestamp: new Date(Date.now() - i * 60 * 60 * 1000)
+      }));
+
+      return res.status(200).json({
+        success: true,
+        count: mockData.length,
+        data: mockData,
+        _note: 'Running in demo mode - data is simulated'
+      });
+    }
     
     let startDate = new Date();
     if (period === '24h') {

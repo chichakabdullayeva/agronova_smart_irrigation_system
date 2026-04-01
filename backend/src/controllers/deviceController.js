@@ -1,4 +1,54 @@
 const Device = require('../models/Device');
+const { isDatabaseConnected } = require('../config/database');
+
+// Mock device data for demo mode
+const getMockDevices = () => [
+  {
+    _id: 'demo_device_001',
+    name: 'Soil Moisture Sensor',
+    description: 'High precision soil moisture sensor for IoT systems',
+    price: 45.99,
+    category: 'sensors',
+    inStock: true,
+    imageUrl: '/devices/moisture-sensor.jpg',
+    specifications: {
+      accuracy: '±3%',
+      range: '0-100%',
+      output: 'Analog/Digital'
+    },
+    createdAt: new Date()
+  },
+  {
+    _id: 'demo_device_002',
+    name: 'Smart Irrigation Controller',
+    description: 'WiFi enabled irrigation controller with mobile app',
+    price: 129.99,
+    category: 'controllers',
+    inStock: true,
+    imageUrl: '/devices/controller.jpg',
+    specifications: {
+      connectivity: 'WiFi + Bluetooth',
+      zones: '4-8 zones',
+      power: '24V AC'
+    },
+    createdAt: new Date()
+  },
+  {
+    _id: 'demo_device_003',
+    name: 'Temperature/Humidity Sensor',
+    description: 'Combined temperature and humidity sensor with display',
+    price: 34.99,
+    category: 'sensors',
+    inStock: true,
+    imageUrl: '/devices/temp-sensor.jpg',
+    specifications: {
+      tempRange: '-40 to 60°C',
+      humidityRange: '0-100%',
+      accuracy: '±0.5°C ±3%RH'
+    },
+    createdAt: new Date()
+  }
+];
 
 // @desc    Get all devices
 // @route   GET /api/devices
@@ -6,6 +56,30 @@ const Device = require('../models/Device');
 exports.getDevices = async (req, res) => {
   try {
     const { category, inStock, minPrice, maxPrice, search } = req.query;
+    
+    // If database is not connected, return mock data
+    if (!isDatabaseConnected()) {
+      let mockDevices = getMockDevices();
+      
+      if (category) mockDevices = mockDevices.filter(d => d.category === category);
+      if (inStock === 'true') mockDevices = mockDevices.filter(d => d.inStock === true);
+      if (minPrice) mockDevices = mockDevices.filter(d => d.price >= parseFloat(minPrice));
+      if (maxPrice) mockDevices = mockDevices.filter(d => d.price <= parseFloat(maxPrice));
+      if (search) {
+        const searchLower = search.toLowerCase();
+        mockDevices = mockDevices.filter(d =>
+          d.name.toLowerCase().includes(searchLower) ||
+          d.description.toLowerCase().includes(searchLower)
+        );
+      }
+
+      return res.status(200).json({
+        success: true,
+        count: mockDevices.length,
+        data: mockDevices,
+        _note: 'Running in demo mode - data is simulated'
+      });
+    }
     
     let query = { isActive: true };
     
