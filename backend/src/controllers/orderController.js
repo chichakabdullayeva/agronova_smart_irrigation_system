@@ -1,6 +1,71 @@
 const Order = require('../models/Order');
 const Device = require('../models/Device');
 const User = require('../models/User');
+const { isDatabaseConnected } = require('../config/database');
+
+// Mock orders data for demo mode
+const getMockOrders = () => [
+  {
+    _id: 'demo_order_001',
+    orderId: 'ORD-2026-001',
+    user: {
+      _id: 'admin_001',
+      name: 'Admin User',
+      email: 'admin@agranova.com',
+      region: 'Baku'
+    },
+    device: {
+      _id: 'demo_device_001',
+      name: 'Soil Moisture Sensor',
+      model: 'SMS-100',
+      price: 45.99
+    },
+    quantity: 2,
+    totalPrice: 91.98,
+    status: 'pending',
+    paymentStatus: 'paid',
+    paymentMethod: 'card',
+    shippingAddress: {
+      region: 'Baku',
+      city: 'Baku',
+      address: '123 Main St',
+      zipCode: '1000',
+      phone: '+994552223333'
+    },
+    createdAt: new Date(Date.now() - 2 * 24 * 3600 * 1000),
+    updatedAt: new Date(Date.now() - 2 * 24 * 3600 * 1000)
+  },
+  {
+    _id: 'demo_order_002',
+    orderId: 'ORD-2026-002',
+    user: {
+      _id: 'admin_001',
+      name: 'Admin User',
+      email: 'admin@agranova.com',
+      region: 'Baku'
+    },
+    device: {
+      _id: 'demo_device_002',
+      name: 'Smart Irrigation Controller',
+      model: 'SIC-200',
+      price: 129.99
+    },
+    quantity: 1,
+    totalPrice: 129.99,
+    status: 'processing',
+    paymentStatus: 'paid',
+    paymentMethod: 'card',
+    shippingAddress: {
+      region: 'Ganja',
+      city: 'Ganja',
+      address: '456 Garden Ave',
+      zipCode: '2000',
+      phone: '+994662223333'
+    },
+    createdAt: new Date(Date.now() - 1 * 24 * 3600 * 1000),
+    updatedAt: new Date(Date.now() - 1 * 24 * 3600 * 1000)
+  }
+];
 
 // @desc    Get all orders (Admin sees all, User sees their own)
 // @route   GET /api/orders
@@ -8,6 +73,29 @@ const User = require('../models/User');
 exports.getOrders = async (req, res) => {
   try {
     const { status, paymentStatus, startDate, endDate, search } = req.query;
+    
+    // If database is not connected, return mock data
+    if (!isDatabaseConnected()) {
+      let mockOrders = getMockOrders();
+      
+      // Apply filters to mock data
+      if (req.user.role !== 'admin') {
+        mockOrders = mockOrders.filter(o => o.user._id === req.user.id);
+      }
+      if (status) {
+        mockOrders = mockOrders.filter(o => o.status === status);
+      }
+      if (paymentStatus) {
+        mockOrders = mockOrders.filter(o => o.paymentStatus === paymentStatus);
+      }
+
+      return res.status(200).json({
+        success: true,
+        count: mockOrders.length,
+        data: mockOrders,
+        _note: 'Running in demo mode - data is simulated'
+      });
+    }
     
     let query = {};
     
