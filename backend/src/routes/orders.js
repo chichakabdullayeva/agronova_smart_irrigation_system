@@ -3,17 +3,16 @@ const router = express.Router();
 const orderController = require('../controllers/orderController');
 const { protect, adminOnly } = require('../middleware/auth');
 
-// All routes require authentication
-router.use(protect);
-
-// User and Admin routes
+// Public route - Recent orders for shop page
 router.get('/', orderController.getOrders);
-router.get('/:id', orderController.getOrder);
-router.post('/', orderController.createOrder);
-router.delete('/:id', orderController.cancelOrder);
+
+// Protected routes - require authentication
+router.get('/:id', protect, orderController.getOrder);
+router.post('/', protect, orderController.createOrder);
+router.delete('/:id', protect, orderController.cancelOrder);
 
 // Admin only routes
-router.put('/:id', adminOnly, orderController.updateOrderStatus);
-router.get('/statistics/all', adminOnly, orderController.getOrderStatistics);
+router.put('/:id', protect, adminOnly, orderController.updateOrderStatus);
+router.get('/statistics/all', protect, adminOnly, orderController.getOrderStatistics);
 
 module.exports = router;

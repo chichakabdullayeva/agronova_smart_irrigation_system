@@ -69,9 +69,11 @@ exports.getOrders = async (req, res) => {
       let mockOrders = getMockOrders();
       
       // Apply filters to mock data
-      if (req.user.role !== 'admin') {
+      // If user is authenticated and not admin, only show their orders
+      if (req.user && req.user.role !== 'admin') {
         mockOrders = mockOrders.filter(o => o.userId === req.user._id);
       }
+      
       if (status) {
         mockOrders = mockOrders.filter(o => o.status === status);
       }
@@ -89,9 +91,11 @@ exports.getOrders = async (req, res) => {
     
     let query = {};
     
-    // If user is not admin, only show their orders
-    if (req.user.role !== 'admin') {
-      query.user = req.user.id;
+    // If user is authenticated and not admin, only show their orders
+    if (req.user) {
+      if (req.user.role !== 'admin') {
+        query.user = req.user._id;
+      }
     }
     
     if (status) query.status = status;
