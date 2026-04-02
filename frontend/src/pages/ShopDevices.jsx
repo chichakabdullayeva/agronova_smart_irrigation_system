@@ -136,11 +136,14 @@ const ShopDevices = () => {
     try {
       setLoading(true);
       const response = await api.get('/devices');
-      setDevices(response.data.data);
-      setFilteredDevices(response.data.data);
+      console.log('Devices response:', response.data);
+      setDevices(response.data.data || []);
+      setFilteredDevices(response.data.data || []);
     } catch (error) {
       console.error('Error fetching devices:', error);
       toast.error('Unable to load devices. Please try again later.');
+      setDevices([]);
+      setFilteredDevices([]);
     } finally {
       setLoading(false);
     }
@@ -149,21 +152,23 @@ const ShopDevices = () => {
   const fetchPopularDevices = async () => {
     try {
       const response = await api.get('/devices');
-      const sorted = response.data.data
+      const sorted = (response.data.data || [])
         .sort((a, b) => (b.reviewCount || 0) - (a.reviewCount || 0))
         .slice(0, 3);
       setPopularDevices(sorted);
     } catch (error) {
       console.error('Error fetching popular devices:', error);
+      setPopularDevices([]);
     }
   };
 
   const fetchRecentOrders = async () => {
     try {
       const response = await api.get('/orders');
-      setRecentOrders(response.data.data.slice(0, 5));
+      setRecentOrders((response.data.data || []).slice(0, 5));
     } catch (error) {
       console.error('Error fetching recent orders:', error);
+      setRecentOrders([]);
     }
   };
 
