@@ -1,5 +1,6 @@
 const AuditLog = require('../models/AuditLog');
 const BehaviorLog = require('../models/BehaviorLog');
+const { isDatabaseConnected } = require('../config/database');
 
 /**
  * Service for logging all database changes and user behaviors
@@ -25,6 +26,11 @@ class AuditService {
     metadata = {}
   }) {
     try {
+      // Skip logging if database is not connected (demo mode)
+      if (!isDatabaseConnected()) {
+        return null;
+      }
+
       const auditLog = new AuditLog({
         action,
         collectionName,
@@ -72,6 +78,11 @@ class AuditService {
     severity = 'MEDIUM'
   }) {
     try {
+      // Skip logging if database is not connected (demo mode)
+      if (!isDatabaseConnected()) {
+        return null;
+      }
+
       const behaviorLog = new BehaviorLog({
         action,
         category,

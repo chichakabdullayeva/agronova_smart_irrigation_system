@@ -1,5 +1,34 @@
 const ConnectedDevice = require('../models/ConnectedDevice');
 const RealTimeSensorData = require('../models/RealTimeSensorData');
+const { isDatabaseConnected } = require('../config/database');
+
+// Mock connected devices for demo mode
+const getMockConnectedDevices = (userId) => [
+  {
+    _id: 'demo_device_ard_001',
+    deviceId: 'ARDUINO_HC05_001',
+    userId: userId,
+    deviceName: 'Arduino HC-05 Soil Sensor',
+    connectionType: 'bluetooth',
+    status: 'online',
+    isOnline: () => true,
+    lastSeen: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
+    isActive: true,
+    toObject: function() { return { _id: this._id, deviceId: this.deviceId, deviceName: this.deviceName, connectionType: this.connectionType, status: this.status, lastSeen: this.lastSeen, isActive: this.isActive }; }
+  },
+  {
+    _id: 'demo_device_esp_001',
+    deviceId: 'ESP32_WIFI_001',
+    userId: userId,
+    deviceName: 'ESP32 WiFi Controller',
+    connectionType: 'wifi',
+    status: 'online',
+    isOnline: () => true,
+    lastSeen: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+    isActive: true,
+    toObject: function() { return { _id: this._id, deviceId: this.deviceId, deviceName: this.deviceName, connectionType: this.connectionType, status: this.status, lastSeen: this.lastSeen, isActive: this.isActive }; }
+  }
+];
 
 // @desc    Register a new device
 // @route   POST /api/hardware/register
@@ -7,6 +36,23 @@ const RealTimeSensorData = require('../models/RealTimeSensorData');
 exports.registerDevice = async (req, res) => {
   try {
     const { deviceId, deviceName, connectionType, metadata } = req.body;
+
+    // If database is not connected, use demo mode
+    if (!isDatabaseConnected()) {
+      return res.status(201).json({
+        success: true,
+        message: 'Device registered successfully (Demo Mode)',
+        data: {
+          _id: `demo_dev_${Date.now()}`,
+          deviceId,
+          deviceName,
+          connectionType,
+          status: 'online',
+          isActive: true,
+          _note: 'Running in demo mode - device would be saved to database if available'
+        }
+      });
+    }
 
     // Check if device already exists
     let device = await ConnectedDevice.findOne({ deviceId });
@@ -155,6 +201,17 @@ exports.receiveSensorData = async (req, res) => {
 // @access  Private
 exports.getUserDevices = async (req, res) => {
   try {
+    // If database is not connected, return mock data
+    if (!isDatabaseConnected()) {
+      const mockDevices = getMockConnectedDevices(req.user._id);
+      return res.status(200).json({
+        success: true,
+        count: mockDevices.length,
+        data: mockDevices.map(d => d.toObject()),
+        _note: 'Running in demo mode - data is simulated'
+      });
+    }
+
     const devices = await ConnectedDevice.find({
       userId: req.user.id,
       isActive: true

@@ -73,8 +73,7 @@ const behaviorLogSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    index: true,
-    ttl: 15552000 // Auto-delete after 180 days
+    ttl: 15552000 // Auto-delete after 180 days (TTL creates the index automatically)
   },
   
   // Severity level
