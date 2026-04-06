@@ -5,47 +5,118 @@ const { isDatabaseConnected } = require('../config/database');
 const getMockDevices = () => [
   {
     _id: 'demo_device_001',
-    name: 'Soil Moisture Sensor',
-    description: 'High precision soil moisture sensor for IoT systems',
-    price: 45.99,
-    category: 'sensors',
-    inStock: true,
-    imageUrl: '/devices/moisture-sensor.jpg',
+    name: 'Basic Irrigation Controller',
+    model: 'IC-100',
+    description: 'Entry-level irrigation controller with 4 zones and mobile app connectivity',
+    features: [
+      '4-zone control',
+      'Mobile app integration',
+      'Weather-based scheduling',
+      'Battery backup'
+    ],
     specifications: {
-      accuracy: '±3%',
-      range: '0-100%',
-      output: 'Analog/Digital'
+      waterCapacity: 'Up to 4 zones',
+      coverage: '0.5-2 hectares',
+      solarPower: 'Optional solar panel',
+      connectivity: 'WiFi + Bluetooth'
     },
+    price: 299.99,
+    currency: 'USD',
+    category: 'irrigation-controller',
+    inStock: true,
+    stockQuantity: 15,
+    rating: 4.2,
+    reviewCount: 28,
+    image: '/devices/controller.jpg',
+    isActive: true,
     createdAt: new Date()
   },
   {
     _id: 'demo_device_002',
-    name: 'Smart Irrigation Controller',
-    description: 'WiFi enabled irrigation controller with mobile app',
-    price: 129.99,
-    category: 'controllers',
-    inStock: true,
-    imageUrl: '/devices/controller.jpg',
+    name: 'Advanced Sensor Kit',
+    model: 'SK-200',
+    description: 'Complete sensor package with soil moisture, temperature, and humidity sensors',
+    features: [
+      'Soil moisture monitoring',
+      'Temperature & humidity sensors',
+      'Wireless connectivity',
+      'Real-time data transmission',
+      'Weather-resistant design'
+    ],
     specifications: {
-      connectivity: 'WiFi + Bluetooth',
-      zones: '4-8 zones',
-      power: '24V AC'
+      waterCapacity: 'N/A',
+      coverage: '1-3 hectares',
+      solarPower: 'Solar powered',
+      connectivity: 'LoRa + WiFi'
     },
+    price: 449.99,
+    currency: 'USD',
+    category: 'sensor-kit',
+    inStock: true,
+    stockQuantity: 8,
+    rating: 4.5,
+    reviewCount: 42,
+    image: '/devices/sensor-kit.jpg',
+    isActive: true,
     createdAt: new Date()
   },
   {
     _id: 'demo_device_003',
-    name: 'Temperature/Humidity Sensor',
-    description: 'Combined temperature and humidity sensor with display',
-    price: 34.99,
-    category: 'sensors',
-    inStock: true,
-    imageUrl: '/devices/temp-sensor.jpg',
+    name: 'Complete Irrigation System',
+    model: 'CIS-500',
+    description: 'Full-featured irrigation system with controller, sensors, and pump integration',
+    features: [
+      '8-zone controller',
+      'Integrated sensor network',
+      'Pump control',
+      'Advanced scheduling',
+      'Remote monitoring',
+      'Automated watering'
+    ],
     specifications: {
-      tempRange: '-40 to 60°C',
-      humidityRange: '0-100%',
-      accuracy: '±0.5°C ±3%RH'
+      waterCapacity: 'Up to 8 zones',
+      coverage: '2-5 hectares',
+      solarPower: 'Solar hybrid',
+      connectivity: 'WiFi + Cellular'
     },
+    price: 899.99,
+    currency: 'USD',
+    category: 'complete-system',
+    inStock: true,
+    stockQuantity: 5,
+    rating: 4.7,
+    reviewCount: 15,
+    image: '/devices/complete-system.jpg',
+    isActive: true,
+    createdAt: new Date()
+  },
+  {
+    _id: 'demo_device_004',
+    name: 'High-Capacity Pump System',
+    model: 'PS-300',
+    description: 'Powerful pump system for large-scale irrigation with variable speed control',
+    features: [
+      'Variable speed control',
+      'High flow capacity',
+      'Energy efficient',
+      'Remote monitoring',
+      'Automatic protection systems'
+    ],
+    specifications: {
+      waterCapacity: '500-1000 L/min',
+      coverage: '3-10 hectares',
+      solarPower: 'Optional solar boost',
+      connectivity: 'WiFi + Modbus'
+    },
+    price: 1299.99,
+    currency: 'USD',
+    category: 'pump-system',
+    inStock: false,
+    stockQuantity: 0,
+    rating: 4.3,
+    reviewCount: 8,
+    image: '/devices/pump-system.jpg',
+    isActive: true,
     createdAt: new Date()
   }
 ];
