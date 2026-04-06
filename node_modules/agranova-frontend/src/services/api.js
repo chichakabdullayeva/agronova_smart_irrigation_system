@@ -6,9 +6,9 @@ const getApiUrl = () => {
     return process.env.REACT_APP_API_URL;
   }
   
-  // In production on Vercel, use relative path to same domain
+  // In production on Vercel, use the current deployment URL
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-    return '/api';
+    return `${window.location.protocol}//${window.location.host}/api`;
   }
   
   return 'http://localhost:5001/api';
