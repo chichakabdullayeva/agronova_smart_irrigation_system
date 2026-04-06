@@ -1,4 +1,6 @@
-export default function handler(req, res) {
+import { parseJsonBody } from '../_utils/bodyParser.js';
+
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -25,7 +27,7 @@ export default function handler(req, res) {
     });
   }
 
-  const { name, email, region } = req.body;
+  const { name, email, region } = await parseJsonBody(req);
 
   // Mock profile update
   const updatedUser = {

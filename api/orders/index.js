@@ -1,4 +1,6 @@
-export default function handler(req, res) {
+import { parseJsonBody } from '../_utils/bodyParser.js';
+
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -16,7 +18,7 @@ export default function handler(req, res) {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 
-  const { userId, deviceId, quantity, totalPrice } = req.body;
+  const { userId, deviceId, quantity, totalPrice } = await parseJsonBody(req);
 
   if (!userId || !deviceId || !quantity) {
     return res.status(400).json({

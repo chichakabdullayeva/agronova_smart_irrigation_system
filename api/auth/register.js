@@ -12,7 +12,9 @@ let registeredUsers = {
   }
 };
 
-export default function handler(req, res) {
+import { parseJsonBody } from '../_utils/bodyParser.js';
+
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -30,7 +32,7 @@ export default function handler(req, res) {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 
-  const { email, password, name } = req.body;
+  const { email, password, name } = await parseJsonBody(req);
 
   if (!email || !password || !name) {
     return res.status(400).json({
