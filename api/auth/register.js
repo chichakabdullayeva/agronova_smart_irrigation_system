@@ -1,9 +1,17 @@
 import jwt from 'jsonwebtoken';
-import { loadUsers, saveUsers, normalizeEmail } from '../_utils/userStore.js';
+import { parseJsonBody } from '../_utils/bodyParser.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'agranova_secret_key_2026';
 
-import { parseJsonBody } from '../_utils/bodyParser.js';
+// In-memory store for new users (persists during deployment)
+let registeredUsers = {};
+
+// Pre-loaded demo users
+const demoUsers = {
+  'demo@agranova.com': { _id: '1', email: 'demo@agranova.com', name: 'Demo User', role: 'user' },
+  'admin@agranova.com': { _id: '2', email: 'admin@agranova.com', name: 'Admin User', role: 'admin' },
+  'testuser@example.com': { _id: '3', email: 'testuser@example.com', name: 'Test User', role: 'user' }
+};
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -32,10 +40,10 @@ export default async function handler(req, res) {
     });
   }
 
-  const normalizedEmail = normalizeEmail(email);
-  const users = await loadUsers();
+  const normalizedEmail = email.toLowerCase().trim();
 
-  if (users[normalizedEmail]) {
+  // Check if already registered
+  if (registeredUsers[normalizedEmail] || demoUsers[normalizedEmail]) {
     return res.status(400).json({
       success: false,
       message: 'User already exists'
@@ -49,8 +57,7 @@ export default async function handler(req, res) {
     role: 'user'
   };
 
-  users[normalizedEmail] = newUser;
-  await saveUsers(users);
+  registeredUsers[normalizedEmail] = newUser;
 
   const token = jwt.sign(
     { id: newUser._id, email: newUser.email, role: newUser.role },

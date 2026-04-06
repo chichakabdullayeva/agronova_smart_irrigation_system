@@ -1,3 +1,15 @@
+let questions = [
+  {
+    _id: '1',
+    title: 'Best time to irrigate?',
+    content: 'What is the optimal time for irrigation?',
+    user: { name: 'Demo User', email: 'demo@agranova.com' },
+    tags: ['irrigation'],
+    answers: [],
+    createdAt: new Date()
+  }
+];
+
 export default function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -12,25 +24,45 @@ export default function handler(req, res) {
     return;
   }
 
-  if (req.method !== 'GET') {
-    return res.status(405).json({ success: false, message: 'Method not allowed' });
-  }
+  if (req.method === 'GET') {
+    res.status(200).json({
+      success: true,
+      data: questions
+    });
+  } else if (req.method === 'POST') {
+    try {
+      const { title, content, tags } = req.body;
 
-  // Mock questions
-  const questions = [
-    {
-      _id: '1',
-      title: 'Best time to irrigate?',
-      description: 'What is the optimal time for irrigation?',
-      author: 'user1',
-      answers: 5,
-      views: 256,
-      createdAt: new Date()
+      if (!title || !content) {
+        return res.status(400).json({
+          success: false,
+          message: 'Title and content are required'
+        });
+      }
+
+      const newQuestion = {
+        _id: Date.now().toString(),
+        title,
+        content,
+        tags: tags || [],
+        user: { name: 'Anonymous', email: 'user@example.com' }, // Mock user, in real app get from token
+        answers: [],
+        createdAt: new Date()
+      };
+
+      questions.push(newQuestion);
+
+      res.status(201).json({
+        success: true,
+        data: newQuestion
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
     }
-  ];
-
-  res.status(200).json({
-    success: true,
-    data: questions
-  });
+  } else {
+    res.status(405).json({ success: false, message: 'Method not allowed' });
+  }
 }

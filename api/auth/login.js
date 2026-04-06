@@ -1,9 +1,14 @@
 import jwt from 'jsonwebtoken';
-import { loadUsers, normalizeEmail } from '../_utils/userStore.js';
+import { parseJsonBody } from '../_utils/bodyParser.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'agranova_secret_key_2026';
 
-import { parseJsonBody } from '../_utils/bodyParser.js';
+// Hardcoded users (no file system dependency)
+const USERS = {
+  'demo@agranova.com': { _id: '1', email: 'demo@agranova.com', name: 'Demo User', role: 'user' },
+  'admin@agranova.com': { _id: '2', email: 'admin@agranova.com', name: 'Admin User', role: 'admin' },
+  'testuser@example.com': { _id: '3', email: 'testuser@example.com', name: 'Test User', role: 'user' }
+};
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -32,9 +37,8 @@ export default async function handler(req, res) {
     });
   }
 
-  const normalizedEmail = normalizeEmail(email);
-  const users = await loadUsers();
-  const user = users[normalizedEmail];
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = USERS[normalizedEmail];
   
   if (!user) {
     return res.status(401).json({
