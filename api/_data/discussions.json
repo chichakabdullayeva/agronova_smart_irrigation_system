@@ -1,0 +1,25 @@
+[
+  {
+    "_id": "d1",
+    "title": "How often should I check my irrigation sensors?",
+    "content": "I have several moisture sensors in my field and want to know the best frequency for checking them.",
+    "category": "irrigation-problems",
+    "problemType": "irrigation",
+    "tags": ["sensors", "schedule"],
+    "author": { "_id": "1", "name": "Demo User", "email": "demo@agranova.com" },
+    "replies": [
+      {
+        "_id": "r1",
+        "author": { "_id": "3", "name": "Test User", "email": "testuser@example.com" },
+        "content": "Check them at least once a day in hot weather, twice a day if possible.",
+        "createdAt": "2026-04-03T09:30:00.000Z",
+        "isHelpful": false
+      }
+    ],
+    "views": 15,
+    "likes": [],
+    "createdAt": "2026-04-02T10:00:00.000Z",
+    "lastActivityAt": "2026-04-03T09:30:00.000Z",
+    "isSolved": false
+  }
+]

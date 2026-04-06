@@ -1,0 +1,14 @@
+[
+  {
+    "_id": "p1",
+    "title": "Best time to irrigate my greenhouse",
+    "description": "I need advice on when to water my greenhouse crops during hot weather.",
+    "problemType": "irrigation",
+    "category": "irrigation-problems",
+    "tags": ["greenhouse", "heat"],
+    "author": { "_id": "1", "name": "Demo User", "email": "demo@agranova.com" },
+    "likes": [],
+    "comments": [],
+    "createdAt": "2026-04-02T11:30:00.000Z"
+  }
+]

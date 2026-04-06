@@ -1,0 +1,33 @@
+[
+  {
+    "_id": "1",
+    "name": "Smart Farming Tips",
+    "description": "Share and learn best practices for smart farming.",
+    "type": "public",
+    "category": "irrigation",
+    "creator": { "_id": "2", "name": "Admin User", "email": "admin@agranova.com" },
+    "members": ["1", "2"],
+    "posts": [
+      {
+        "_id": "101",
+        "author": { "_id": "1", "name": "Demo User", "email": "demo@agranova.com" },
+        "content": "What is the best schedule for drip irrigation in dry season?",
+        "likes": [],
+        "comments": [],
+        "createdAt": "2026-04-01T12:00:00.000Z"
+      }
+    ],
+    "createdAt": "2026-03-28T10:00:00.000Z"
+  },
+  {
+    "_id": "2",
+    "name": "Irrigation Techniques",
+    "description": "Discussion on modern irrigation methods.",
+    "type": "public",
+    "category": "equipment",
+    "creator": { "_id": "3", "name": "Test User", "email": "testuser@example.com" },
+    "members": ["3"],
+    "posts": [],
+    "createdAt": "2026-03-30T08:00:00.000Z"
+  }
+]

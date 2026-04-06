@@ -1,16 +1,83 @@
-let questions = [
-  {
-    _id: '1',
-    title: 'Best time to irrigate?',
-    content: 'What is the optimal time for irrigation?',
-    user: { name: 'Demo User', email: 'demo@agranova.com' },
-    tags: ['irrigation'],
-    answers: [],
-    createdAt: new Date()
-  }
-];
+const mongoose = require('mongoose');
 
-export default function handler(req, res) {
+// Question Schema
+const answerSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  content: {
+    type: String,
+    required: true
+  },
+  isBestAnswer: {
+    type: Boolean,
+    default: false
+  },
+  votes: {
+    type: Number,
+    default: 0
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const questionSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  title: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  content: {
+    type: String,
+    required: true
+  },
+  tags: [{
+    type: String
+  }],
+  answers: [answerSchema],
+  views: {
+    type: Number,
+    default: 0
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const Question = mongoose.model('Question', questionSchema);
+
+// DB Connection
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) return;
+
+  try {
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/agranova';
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
+    });
+    isConnected = true;
+    console.log('✅ MongoDB Connected');
+  } catch (error) {
+    console.error('❌ MongoDB connection error:', error.message);
+    throw error;
+  }
+};
+
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -24,13 +91,20 @@ export default function handler(req, res) {
     return;
   }
 
-  if (req.method === 'GET') {
-    res.status(200).json({
-      success: true,
-      data: questions
-    });
-  } else if (req.method === 'POST') {
-    try {
+  try {
+    await connectDB();
+
+    if (req.method === 'GET') {
+      const questions = await Question.find()
+        .populate('user', 'name email')
+        .populate('answers.user', 'name email')
+        .sort({ createdAt: -1 });
+
+      res.status(200).json({
+        success: true,
+        data: questions
+      });
+    } else if (req.method === 'POST') {
       const { title, content, tags } = req.body;
 
       if (!title || !content) {
@@ -40,29 +114,30 @@ export default function handler(req, res) {
         });
       }
 
-      const newQuestion = {
-        _id: Date.now().toString(),
+      // For now, use a mock user ID since auth is hardcoded
+      const mockUserId = '507f1f77bcf86cd799439011'; // Mock ObjectId
+
+      const question = await Question.create({
+        user: mockUserId,
         title,
         content,
-        tags: tags || [],
-        user: { name: 'Anonymous', email: 'user@example.com' }, // Mock user, in real app get from token
-        answers: [],
-        createdAt: new Date()
-      };
+        tags: tags || []
+      });
 
-      questions.push(newQuestion);
+      await question.populate('user', 'name email');
 
       res.status(201).json({
         success: true,
-        data: newQuestion
+        data: question
       });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
+    } else {
+      res.status(405).json({ success: false, message: 'Method not allowed' });
     }
-  } else {
-    res.status(405).json({ success: false, message: 'Method not allowed' });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 }
