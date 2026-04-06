@@ -1,0 +1,9 @@
+{
+  "name": "agronova-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Agronova API serverless functions",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
+  }
+}
