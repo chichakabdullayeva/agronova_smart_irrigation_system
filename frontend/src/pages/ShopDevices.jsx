@@ -110,6 +110,43 @@ const ShopDevices = () => {
     fetchRecentOrders();
   }, []);
 
+  const applyFilters = useCallback(() => {
+    let filtered = [...devices];
+
+    // Filter by device type
+    if (filters.deviceType !== 'All Types') {
+      filtered = filtered.filter(d => d.category === filters.deviceType);
+    }
+
+    // Filter by price range
+    if (filters.minPrice) {
+      filtered = filtered.filter(d => d.price >= parseFloat(filters.minPrice));
+    }
+    if (filters.maxPrice) {
+      filtered = filtered.filter(d => d.price <= parseFloat(filters.maxPrice));
+    }
+
+    // Filter by coverage (extract from specifications.coverage)
+    if (filters.coverage) {
+      filtered = filtered.filter(d => {
+        const coverage = d.specifications?.coverage || '';
+        const match = coverage.match(/(\d+)/);
+        if (match) {
+          const hectares = parseFloat(match[1]);
+          return hectares >= filters.coverage.min && hectares <= filters.coverage.max;
+        }
+        return true;
+      });
+    }
+
+    // Filter by stock
+    if (filters.inStockOnly) {
+      filtered = filtered.filter(d => d.inStock);
+    }
+
+    setFilteredDevices(filtered);
+  }, [devices, filters]);
+
   useEffect(() => {
     applyFilters();
   }, [applyFilters]);
@@ -182,43 +219,6 @@ const ShopDevices = () => {
       setRecentOrders([]);
     }
   };
-
-  const applyFilters = useCallback(() => {
-    let filtered = [...devices];
-
-    // Filter by device type
-    if (filters.deviceType !== 'All Types') {
-      filtered = filtered.filter(d => d.category === filters.deviceType);
-    }
-
-    // Filter by price range
-    if (filters.minPrice) {
-      filtered = filtered.filter(d => d.price >= parseFloat(filters.minPrice));
-    }
-    if (filters.maxPrice) {
-      filtered = filtered.filter(d => d.price <= parseFloat(filters.maxPrice));
-    }
-
-    // Filter by coverage (extract from specifications.coverage)
-    if (filters.coverage) {
-      filtered = filtered.filter(d => {
-        const coverage = d.specifications?.coverage || '';
-        const match = coverage.match(/(\d+)/);
-        if (match) {
-          const hectares = parseFloat(match[1]);
-          return hectares >= filters.coverage.min && hectares <= filters.coverage.max;
-        }
-        return true;
-      });
-    }
-
-    // Filter by stock
-    if (filters.inStockOnly) {
-      filtered = filtered.filter(d => d.inStock);
-    }
-
-    setFilteredDevices(filtered);
-  }, [devices, filters]);
 
   const getSmartRecommendation = () => {
     const { farmSize, budget } = recommendForm;

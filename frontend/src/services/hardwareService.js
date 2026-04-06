@@ -93,4 +93,5 @@ class HardwareService {
   }
 }
 
-export default new HardwareService();
+const hardwareService = new HardwareService();
+export default hardwareService;
