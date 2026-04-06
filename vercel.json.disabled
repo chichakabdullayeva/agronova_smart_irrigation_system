@@ -1,0 +1,29 @@
+
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": "api/**" }
+    }
+  ],
+  "routes": [
+    {
+      "src": "^/api/(.*)$",
+      "dest": "/api/$1.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/(.*)$",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "REACT_APP_API_URL": "https://$VERCEL_URL/api",
+    "JWT_SECRET": "agranova_secret_key_2026"
+  }
+}
+}

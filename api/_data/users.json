@@ -1,0 +1,20 @@
+{
+  "demo@agranova.com": {
+    "_id": "1",
+    "email": "demo@agranova.com",
+    "name": "Demo User",
+    "role": "user"
+  },
+  "admin@agranova.com": {
+    "_id": "2",
+    "email": "admin@agranova.com",
+    "name": "Admin User",
+    "role": "admin"
+  },
+  "testuser@example.com": {
+    "_id": "3",
+    "email": "testuser@example.com",
+    "name": "Test User",
+    "role": "user"
+  }
+}

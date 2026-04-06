@@ -1,16 +1,7 @@
 import jwt from 'jsonwebtoken';
+import { loadUsers, saveUsers, normalizeEmail } from '../_utils/userStore.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'agranova_secret_key_2026';
-
-// Simple in-memory user store (replace with MongoDB in production)
-let registeredUsers = {
-  'demo@agranova.com': {
-    _id: '1',
-    email: 'demo@agranova.com',
-    name: 'Demo User',
-    role: 'user'
-  }
-};
 
 import { parseJsonBody } from '../_utils/bodyParser.js';
 
@@ -41,7 +32,10 @@ export default async function handler(req, res) {
     });
   }
 
-  if (registeredUsers[email]) {
+  const normalizedEmail = normalizeEmail(email);
+  const users = await loadUsers();
+
+  if (users[normalizedEmail]) {
     return res.status(400).json({
       success: false,
       message: 'User already exists'
@@ -50,12 +44,13 @@ export default async function handler(req, res) {
 
   const newUser = {
     _id: Date.now().toString(),
-    email,
+    email: normalizedEmail,
     name,
     role: 'user'
   };
 
-  registeredUsers[email] = newUser;
+  users[normalizedEmail] = newUser;
+  await saveUsers(users);
 
   const token = jwt.sign(
     { id: newUser._id, email: newUser.email, role: newUser.role },

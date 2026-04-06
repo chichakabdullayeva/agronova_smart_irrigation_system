@@ -1,22 +1,7 @@
 import jwt from 'jsonwebtoken';
+import { loadUsers, normalizeEmail } from '../_utils/userStore.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'agranova_secret_key_2026';
-
-// Mock users
-const mockUsers = {
-  'demo@agranova.com': {
-    _id: '1',
-    email: 'demo@agranova.com',
-    name: 'Demo User',
-    role: 'user'
-  },
-  'admin@agranova.com': {
-    _id: '2',
-    email: 'admin@agranova.com',
-    name: 'Admin User',
-    role: 'admin'
-  }
-};
 
 import { parseJsonBody } from '../_utils/bodyParser.js';
 
@@ -47,7 +32,9 @@ export default async function handler(req, res) {
     });
   }
 
-  const user = mockUsers[email];
+  const normalizedEmail = normalizeEmail(email);
+  const users = await loadUsers();
+  const user = users[normalizedEmail];
   
   if (!user) {
     return res.status(401).json({
