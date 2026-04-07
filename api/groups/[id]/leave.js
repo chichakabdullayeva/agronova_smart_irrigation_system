@@ -26,9 +26,9 @@ export default async function handler(req, res) {
   }
 
   const groups = await loadData('groups', []);
-  // Extract ID from URL: /api/groups/123/leave -> get 123
-  const urlParts = req.url.split('/').filter(Boolean);
-  const groupId = req.query.id || (urlParts.length >= 3 ? urlParts[urlParts.length - 2] : null);
+  
+  // Vercel dynamic routing: Extract groupId from [id] parameter
+  const groupId = req.query.id;
   
   if (!groupId) {
     return res.status(400).json({ success: false, message: 'Group ID is required' });

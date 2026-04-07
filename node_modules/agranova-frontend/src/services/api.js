@@ -38,12 +38,14 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // For FormData, let axios set the Content-Type with boundary
+    // For FormData, DO NOT set Content-Type header
+    // Let axios automatically set it with the correct boundary
     if (config.data instanceof FormData) {
+      config.headers['Content-Type'] = undefined;
       delete config.headers['Content-Type'];
     }
     
-    console.log('[API Request]', config.method.toUpperCase(), config.url);
+    console.log('[API Request]', config.method.toUpperCase(), config.url, 'FormData:', config.data instanceof FormData);
     return config;
   },
   (error) => {
