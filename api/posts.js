@@ -78,10 +78,6 @@ export default async function handler(req, res) {
     const body = await parseRequestBody(req);
     const fields = body.fields || body;
     const files = body.files || {};
-    
-    // Debug: Log what we received
-    console.log('[POST /posts] Body keys:', Object.keys(body));
-    console.log('[POST /posts] Files:', Object.keys(files));
 
     const title = String(fields.title || '').trim();
     const description = String(fields.description || '').trim();
@@ -92,6 +88,25 @@ export default async function handler(req, res) {
       .map((tag) => tag.trim())
       .filter(Boolean);
 
+    // Handle image URLs from Cloudinary
+    let imageUrls = [];
+    if (fields.imageUrls) {
+      try {
+        imageUrls = JSON.parse(fields.imageUrls);
+      } catch (e) {
+        imageUrls = [];
+      }
+    }
+
+    let videoUrls = [];
+    if (fields.videoUrls) {
+      try {
+        videoUrls = JSON.parse(fields.videoUrls);
+      } catch (e) {
+        videoUrls = [];
+      }
+    }
+
     if (!title || !description) {
       return res.status(400).json({
         success: false,
@@ -100,10 +115,6 @@ export default async function handler(req, res) {
     }
 
     const author = currentUser || { _id: '0', name: 'Anonymous', email: 'anonymous@agranova.com', role: 'guest' };
-
-    // Process attached files
-    const imageCount = files.images ? (Array.isArray(files.images) ? files.images.length : 1) : 0;
-    const videoCount = files.videos ? (Array.isArray(files.videos) ? files.videos.length : 1) : 0;
 
     const newPost = {
       _id: `post_${Date.now()}`,
@@ -115,8 +126,8 @@ export default async function handler(req, res) {
       author,
       likes: [],
       comments: [],
-      images: imageCount,
-      videos: videoCount,
+      images: imageUrls,
+      videos: videoUrls,
       createdAt: new Date().toISOString()
     };
 

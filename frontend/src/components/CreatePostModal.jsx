@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, Upload, Image, Video, AlertCircle } from 'lucide-react';
 import { PROBLEM_TYPES, getCategoriesForType } from '../utils/communityConstants';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 
 const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [videoPreviews, setVideoPreviews] = useState([]);
   const [errors, setErrors] = useState({});
+  const [isUploading, setIsUploading] = useState(false);
   const [availableCategories, setAvailableCategories] = useState([]);
 
   const imageInputRef = useRef(null);
@@ -140,6 +142,19 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const uploadToCloudinary = async (file, type = 'image') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', type);
+
+    const response = await api.post('/upload', formData);
+    if (response.data.success) {
+      return response.data.data.url;
+    } else {
+      throw new Error(response.data.message || 'Upload failed');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -148,22 +163,53 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
       return;
     }
 
-    const submitData = new FormData();
-    submitData.append('title', formData.title.trim());
-    submitData.append('description', formData.description.trim());
-    submitData.append('problemType', formData.problemType);
-    submitData.append('category', formData.category);
-    submitData.append('tags', formData.tags);
+    try {
+      setIsUploading(true);
 
-    images.forEach(image => {
-      submitData.append('images', image);
-    });
+      // Upload images to Cloudinary via our API
+      const imageUrls = [];
+      for (const image of images) {
+        try {
+          const url = await uploadToCloudinary(image, 'image');
+          imageUrls.push(url);
+        } catch (error) {
+          console.error('Image upload failed:', error);
+          toast.error('Failed to upload image');
+          setIsUploading(false);
+          return;
+        }
+      }
 
-    videos.forEach(video => {
-      submitData.append('videos', video);
-    });
+      // Upload videos to Cloudinary via our API
+      const videoUrls = [];
+      for (const video of videos) {
+        try {
+          const url = await uploadToCloudinary(video, 'video');
+          videoUrls.push(url);
+        } catch (error) {
+          console.error('Video upload failed:', error);
+          toast.error('Failed to upload video');
+          setIsUploading(false);
+          return;
+        }
+      }
 
-    onSubmit(submitData);
+      // Now submit the post with image URLs
+      const submitData = new FormData();
+      submitData.append('title', formData.title.trim());
+      submitData.append('description', formData.description.trim());
+      submitData.append('problemType', formData.problemType);
+      submitData.append('category', formData.category);
+      submitData.append('tags', formData.tags);
+      submitData.append('imageUrls', JSON.stringify(imageUrls));
+      submitData.append('videoUrls', JSON.stringify(videoUrls));
+
+      onSubmit(submitData);
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload media files');
+      setIsUploading(false);
+    }
   };
 
   const resetForm = () => {
@@ -458,10 +504,10 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isUploading || isSubmitting}
               className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Creating...' : 'Create Post'}
+              {(isUploading || isSubmitting) ? 'Uploading...' : 'Create Post'}
             </button>
           </div>
         </form>

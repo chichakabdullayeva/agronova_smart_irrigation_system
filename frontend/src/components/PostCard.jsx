@@ -115,31 +115,31 @@ const PostCard = ({ post, onLike, onComment, onDelete, onEdit, currentUserId }) 
       <p className="text-gray-700 mb-4 whitespace-pre-wrap">{post.description}</p>
 
       {/* Images */}
-      {post.media?.images?.length > 0 && (
+      {post.images?.length > 0 && (
         <div className={`grid gap-2 mb-4 ${
-          post.media.images.length === 1 ? 'grid-cols-1' :
-          post.media.images.length === 2 ? 'grid-cols-2' :
+          post.images.length === 1 ? 'grid-cols-1' :
+          post.images.length === 2 ? 'grid-cols-2' :
           'grid-cols-3'
         }`}>
-          {post.media.images.map((image, index) => (
+          {post.images.map((imageUrl, index) => (
             <img
               key={index}
-              src={`http://localhost:5001${image.url}`}
+              src={imageUrl}
               alt={`Post attachment ${index + 1}`}
               className="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition"
-              onClick={() => window.open(`http://localhost:5001${image.url}`, '_blank')}
+              onClick={() => window.open(imageUrl, '_blank')}
             />
           ))}
         </div>
       )}
 
       {/* Videos */}
-      {post.media?.videos?.length > 0 && (
+      {post.videos?.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
-          {post.media.videos.map((video, index) => (
+          {post.videos.map((videoUrl, index) => (
             <video
               key={index}
-              src={`http://localhost:5001${video.url}`}
+              src={videoUrl}
               controls
               className="w-full h-64 object-cover rounded-lg"
             />

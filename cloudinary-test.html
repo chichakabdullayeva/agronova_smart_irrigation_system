@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cloudinary Upload Test</title>
+</head>
+<body>
+    <h1>Cloudinary Upload Test</h1>
+    <input type="file" id="fileInput" accept="image/*">
+    <button onclick="testUpload()">Test Upload</button>
+    <div id="results"></div>
+
+    <script>
+        const API_URL = 'https://agronova-smart-irrigation-system.vercel.app/api';
+
+        async function testUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const results = document.getElementById('results');
+
+            if (!fileInput.files[0]) {
+                results.innerHTML = '<p>Please select a file first</p>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('type', 'image');
+
+            results.innerHTML = '<p>Uploading...</p>';
+
+            try {
+                const response = await fetch(`${API_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    results.innerHTML = `
+                        <p>✅ Upload successful!</p>
+                        <p>URL: <a href="${data.data.url}" target="_blank">${data.data.url}</a></p>
+                        <img src="${data.data.url}" style="max-width: 300px; max-height: 300px;" alt="Uploaded image">
+                    `;
+                } else {
+                    results.innerHTML = `<p>❌ Upload failed: ${data.message}</p>`;
+                }
+            } catch (error) {
+                results.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

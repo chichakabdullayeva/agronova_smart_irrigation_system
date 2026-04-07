@@ -21,9 +21,8 @@ export default async function handler(req, res) {
   }
 
   const currentUser = await getUserFromRequest(req);
-  if (!currentUser) {
-    return res.status(401).json({ success: false, message: 'Authentication required' });
-  }
+  // Allow anonymous joining for now (same as posts)
+  const user = currentUser || { _id: 'anonymous_' + Date.now(), name: 'Anonymous User', email: 'anonymous@agranova.com', role: 'guest' };
 
   const groups = await loadData('groups', []);
   
@@ -41,11 +40,11 @@ export default async function handler(req, res) {
   }
 
   group.members = group.members || [];
-  if (group.members.includes(currentUser._id)) {
+  if (group.members.includes(user._id)) {
     return res.status(400).json({ success: false, message: 'Already a member' });
   }
 
-  group.members.push(currentUser._id);
+  group.members.push(user._id);
   await saveData('groups', groups);
 
   res.status(200).json({ success: true, data: group });

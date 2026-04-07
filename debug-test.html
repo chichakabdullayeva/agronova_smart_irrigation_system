@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>Debug Test</h1>
+    <button onclick="testGroupJoin()">Test Group Join</button>
+    <button onclick="testPhotoUpload()">Test Photo Upload</button>
+    <div id="results"></div>
+
+    <script>
+        const API_URL = 'https://agronova-smart-irrigation-system.vercel.app/api';
+
+        async function testGroupJoin() {
+            const results = document.getElementById('results');
+            results.innerHTML += '<h2>Testing Group Join...</h2>';
+
+            try {
+                // First get groups
+                const groupsResponse = await fetch(`${API_URL}/groups`);
+                const groupsData = await groupsResponse.json();
+                results.innerHTML += `<p>Groups response: ${JSON.stringify(groupsData)}</p>`;
+
+                if (groupsData.data && groupsData.data.length > 0) {
+                    const groupId = groupsData.data[0]._id;
+                    results.innerHTML += `<p>Trying to join group: ${groupId}</p>`;
+
+                    // Try to join
+                    const joinResponse = await fetch(`${API_URL}/groups/${groupId}/join`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const joinData = await joinResponse.json();
+                    results.innerHTML += `<p>Join response: ${JSON.stringify(joinData)}</p>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testPhotoUpload() {
+            const results = document.getElementById('results');
+            results.innerHTML += '<h2>Testing Photo Upload...</h2>';
+
+            try {
+                // Create a test image
+                const canvas = document.createElement('canvas');
+                canvas.width = 100;
+                canvas.height = 100;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'red';
+                ctx.fillRect(0, 0, 100, 100);
+
+                canvas.toBlob(async (blob) => {
+                    const formData = new FormData();
+                    formData.append('title', 'Test Post');
+                    formData.append('description', 'Test description');
+                    formData.append('problemType', 'technical');
+                    formData.append('category', 'hardware');
+                    formData.append('images', blob, 'test-image.png');
+
+                    results.innerHTML += '<p>Sending FormData...</p>';
+
+                    const response = await fetch(`${API_URL}/posts`, {
+                        method: 'POST',
+                        body: formData
+                        // Note: No Content-Type header - let browser set it
+                    });
+
+                    const data = await response.json();
+                    results.innerHTML += `<p>Response: ${JSON.stringify(data)}</p>`;
+                });
+            } catch (error) {
+                results.innerHTML += `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
