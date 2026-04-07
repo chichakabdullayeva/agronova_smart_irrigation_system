@@ -77,6 +77,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const body = await parseRequestBody(req);
     const fields = body.fields || body;
+    const files = body.files || {};
 
     const title = String(fields.title || '').trim();
     const description = String(fields.description || '').trim();
@@ -96,6 +97,10 @@ export default async function handler(req, res) {
 
     const author = currentUser || { _id: '0', name: 'Anonymous', email: 'anonymous@agranova.com', role: 'guest' };
 
+    // Process attached files
+    const imageCount = files.images ? (Array.isArray(files.images) ? files.images.length : 1) : 0;
+    const videoCount = files.videos ? (Array.isArray(files.videos) ? files.videos.length : 1) : 0;
+
     const newPost = {
       _id: `post_${Date.now()}`,
       title,
@@ -106,6 +111,8 @@ export default async function handler(req, res) {
       author,
       likes: [],
       comments: [],
+      images: imageCount,
+      videos: videoCount,
       createdAt: new Date().toISOString()
     };
 

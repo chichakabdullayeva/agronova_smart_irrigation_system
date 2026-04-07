@@ -26,7 +26,7 @@ export default async function handler(req, res) {
   }
 
   const groups = await loadData('groups', []);
-  const groupId = req.url.split('/').slice(-2, -1)[0];
+  const groupId = req.query.id || req.url.split('/').slice(-2, -1)[0];
   const group = groups.find((item) => item._id === groupId);
 
   if (!group) {

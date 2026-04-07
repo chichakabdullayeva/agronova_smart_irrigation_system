@@ -68,11 +68,7 @@ const Community = () => {
   const handleCreatePost = async (formData) => {
     try {
       setIsSubmitting(true);
-      const response = await api.post('/posts', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const response = await api.post('/posts', formData);
 
       if (response.data.success) {
         toast.success('Post created successfully!');

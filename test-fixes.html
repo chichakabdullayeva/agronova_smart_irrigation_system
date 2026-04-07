@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Photo Upload & Group Join</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f4f4f4; padding: 10px; overflow: auto; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Test Fixes</h1>
+
+    <div class="section">
+        <h2>1. Test Photo Upload with Post</h2>
+        <button onclick="testPhotoUpload()">Test Photo Upload</button>
+        <div id="photoResult"></div>
+    </div>
+
+    <div class="section">
+        <h2>2. Test Group Join</h2>
+        <button onclick="testGroupJoin()">Test Group Join</button>
+        <div id="groupResult"></div>
+    </div>
+
+    <script>
+        const API = 'https://agronova-smart-irrigation-system.vercel.app/api';
+        const TOKEN = localStorage.getItem('token') || 'test-token';
+
+        async function testPhotoUpload() {
+            const resultDiv = document.getElementById('photoResult');
+            resultDiv.innerHTML = '<p>Testing...</p>';
+
+            try {
+                // Create form data with a fake image
+                const formData = new FormData();
+                formData.append('title', 'Test Post with Photo');
+                formData.append('description', 'This is a test post with photo upload');
+                formData.append('problemType', 'disease');
+                formData.append('category', 'fungal');
+                formData.append('tags', 'test,photo');
+
+                // Create a simple test image
+                const canvas = document.createElement('canvas');
+                canvas.width = 100;
+                canvas.height = 100;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'blue';
+                ctx.fillRect(0, 0, 100, 100);
+                
+                canvas.toBlob((blob) => {
+                    formData.append('images', blob, 'test-image.png');
+                    
+                    fetch(`${API}/posts`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${TOKEN}`
+                        },
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        resultDiv.innerHTML = `
+                            <p class="success">✓ Photo upload successful!</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        `;
+                    })
+                    .catch(err => {
+                        resultDiv.innerHTML = `
+                            <p class="error">✗ Error: ${err.message}</p>
+                            <pre>${err}</pre>
+                        `;
+                    });
+                });
+            } catch (err) {
+                resultDiv.innerHTML = `<p class="error">✗ Error: ${err.message}</p>`;
+            }
+        }
+
+        async function testGroupJoin() {
+            const resultDiv = document.getElementById('groupResult');
+            resultDiv.innerHTML = '<p>Testing...</p>';
+
+            try {
+                // First get groups to get a valid group ID
+                const groupsResp = await fetch(`${API}/groups`, {
+                    headers: {
+                        'Authorization': `Bearer ${TOKEN}`
+                    }
+                });
+                const groupsData = await groupsResp.json();
+                
+                if (!groupsData.data || groupsData.data.length === 0) {
+                    resultDiv.innerHTML = `<p class="error">✗ No groups found. Create a group first.</p>`;
+                    return;
+                }
+
+                const groupId = groupsData.data[0]._id;
+                console.log('Testing with group ID:', groupId);
+
+                // Try to join the group
+                const joinResp = await fetch(`${API}/groups/${groupId}/join`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${TOKEN}`
+                    }
+                });
+                const joinData = await joinResp.json();
+
+                if (joinResp.ok || joinData.success) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✓ Group join successful!</p>
+                        <pre>${JSON.stringify(joinData, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">✗ Error: ${joinData.message}</p>
+                        <pre>${JSON.stringify(joinData, null, 2)}</pre>
+                    `;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<p class="error">✗ Error: ${err.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
