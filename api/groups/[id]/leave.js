@@ -26,7 +26,14 @@ export default async function handler(req, res) {
   }
 
   const groups = await loadData('groups', []);
-  const groupId = req.url.split('/').slice(-2, -1)[0];
+  // Extract ID from URL: /api/groups/123/leave -> get 123
+  const urlParts = req.url.split('/').filter(Boolean);
+  const groupId = req.query.id || (urlParts.length >= 3 ? urlParts[urlParts.length - 2] : null);
+  
+  if (!groupId) {
+    return res.status(400).json({ success: false, message: 'Group ID is required' });
+  }
+  
   const group = groups.find((item) => item._id === groupId);
 
   if (!group) {

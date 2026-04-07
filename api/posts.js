@@ -78,6 +78,10 @@ export default async function handler(req, res) {
     const body = await parseRequestBody(req);
     const fields = body.fields || body;
     const files = body.files || {};
+    
+    // Debug: Log what we received
+    console.log('[POST /posts] Body keys:', Object.keys(body));
+    console.log('[POST /posts] Files:', Object.keys(files));
 
     const title = String(fields.title || '').trim();
     const description = String(fields.description || '').trim();
