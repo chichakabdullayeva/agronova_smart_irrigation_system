@@ -268,7 +268,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
                   : 'border-gray-300 focus:ring-green-500'
               }`}
               maxLength={200}
-              disabled={isSubmitting}
+              disabled={isUploading || isSubmitting}
             />
             {errors.title && (
               <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
@@ -326,7 +326,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
                   ? 'border-red-500 focus:ring-red-500'
                   : 'border-gray-300 focus:ring-green-500'
               }`}
-              disabled={!formData.problemType || isSubmitting}
+              disabled={!formData.problemType || isUploading || isSubmitting}
             >
               <option value="">
                 {formData.problemType
@@ -364,7 +364,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
                   : 'border-gray-300 focus:ring-green-500'
               }`}
               maxLength={5000}
-              disabled={isSubmitting}
+              disabled={isUploading || isSubmitting}
             />
             {errors.description && (
               <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
@@ -389,7 +389,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
               onChange={handleChange}
               placeholder="tomato, disease, organic (comma separated)"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              disabled={isSubmitting}
+              disabled={isUploading || isSubmitting}
             />
             <p className="text-gray-500 text-sm mt-1">
               Separate tags with commas
@@ -408,13 +408,13 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
               multiple
               onChange={handleImageSelect}
               className="hidden"
-              disabled={isSubmitting}
+              disabled={isUploading || isSubmitting}
             />
             <button
               type="button"
               onClick={() => imageInputRef.current?.click()}
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-              disabled={isSubmitting || images.length >= 5}
+              disabled={isUploading || isSubmitting || images.length >= 5}
             >
               <Image className="w-5 h-5" />
               Upload Images
@@ -434,7 +434,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
                       type="button"
                       onClick={() => removeImage(index)}
                       className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
-                      disabled={isSubmitting}
+                      disabled={isUploading || isSubmitting}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -456,13 +456,13 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
               multiple
               onChange={handleVideoSelect}
               className="hidden"
-              disabled={isSubmitting}
+              disabled={isUploading || isSubmitting}
             />
             <button
               type="button"
               onClick={() => videoInputRef.current?.click()}
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-              disabled={isSubmitting || videos.length >= 2}
+              disabled={isUploading || isSubmitting || videos.length >= 2}
             >
               <Video className="w-5 h-5" />
               Upload Videos
@@ -482,7 +482,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
                       type="button"
                       onClick={() => removeVideo(index)}
                       className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
-                      disabled={isSubmitting}
+                      disabled={isUploading || isSubmitting}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -498,7 +498,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
               type="button"
               onClick={handleClose}
               className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-              disabled={isSubmitting}
+              disabled={isUploading || isSubmitting}
             >
               Cancel
             </button>

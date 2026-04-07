@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Photo Upload Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        button { padding: 10px 20px; margin: 5px; }
+        input { margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Photo Upload Test</h1>
+
+    <div class="test-section">
+        <h2>Test 1: Direct API Call</h2>
+        <input type="file" id="fileInput" accept="image/*">
+        <button onclick="testDirectUpload()">Test Direct Upload</button>
+        <div id="directResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Frontend Flow Simulation</h2>
+        <input type="file" id="fileInput2" accept="image/*" multiple>
+        <button onclick="testFrontendFlow()">Test Frontend Flow</button>
+        <div id="frontendResult"></div>
+        <div id="previews"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://agronova-smart-irrigation-system.vercel.app/api';
+
+        async function testDirectUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('directResult');
+
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '<span class="error">Please select a file first</span>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('type', 'image');
+
+            resultDiv.innerHTML = 'Uploading...';
+
+            try {
+                const response = await fetch(`${API_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <span class="success">✅ Upload successful!</span><br>
+                        URL: <a href="${data.data.url}" target="_blank">${data.data.url}</a><br>
+                        <img src="${data.data.url}" style="max-width: 200px; max-height: 200px;" alt="Uploaded image">
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Upload failed: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function testFrontendFlow() {
+            const fileInput = document.getElementById('fileInput2');
+            const resultDiv = document.getElementById('frontendResult');
+            const previewsDiv = document.getElementById('previews');
+
+            if (!fileInput.files.length) {
+                resultDiv.innerHTML = '<span class="error">Please select files first</span>';
+                return;
+            }
+
+            const files = Array.from(fileInput.files);
+            resultDiv.innerHTML = `Processing ${files.length} file(s)...`;
+
+            // Create previews
+            previewsDiv.innerHTML = '';
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewsDiv.innerHTML += `
+                        <div style="display: inline-block; margin: 10px;">
+                            <img src="${e.target.result}" style="max-width: 100px; max-height: 100px;" alt="Preview ${index + 1}">
+                            <br>File ${index + 1}: ${file.name}
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Simulate upload
+            const imageUrls = [];
+            for (const file of files) {
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('type', 'image');
+
+                    const response = await fetch(`${API_URL}/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        imageUrls.push(data.data.url);
+                        resultDiv.innerHTML = `✅ Uploaded ${imageUrls.length}/${files.length} files...`;
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } catch (error) {
+                    resultDiv.innerHTML = `<span class="error">❌ Upload failed for ${file.name}: ${error.message}</span>`;
+                    return;
+                }
+            }
+
+            // Submit post
+            try {
+                const postData = new FormData();
+                postData.append('title', 'Test Post with Images');
+                postData.append('description', 'This is a test post with uploaded images');
+                postData.append('problemType', 'technical');
+                postData.append('category', 'hardware');
+                postData.append('imageUrls', JSON.stringify(imageUrls));
+
+                const response = await fetch(`${API_URL}/posts`, {
+                    method: 'POST',
+                    body: postData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.innerHTML = '<span class="success">✅ Post created successfully!</span>';
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Post creation failed: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Post creation error: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>

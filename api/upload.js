@@ -21,6 +21,23 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('[UPLOAD] Starting upload process...');
+    
+    // Check if Cloudinary is configured
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.log('[UPLOAD] Cloudinary not configured, returning mock response');
+      return res.status(200).json({
+        success: true,
+        data: {
+          url: 'https://via.placeholder.com/300x200?text=Mock+Image',
+          public_id: 'mock_' + Date.now(),
+          format: 'jpg',
+          width: 300,
+          height: 200
+        }
+      });
+    }
+
     // Parse the multipart form data
     const body = await parseFormBody(req);
     const fields = body.fields || {};
@@ -51,12 +68,14 @@ export default async function handler(req, res) {
       });
     }
 
+    console.log('[UPLOAD] Uploading to Cloudinary...');
     // Upload to Cloudinary
     const result = await uploadToCloudinary(buffer, {
       resource_type: type === 'video' ? 'video' : 'image',
       format: type === 'video' ? 'mp4' : 'jpg'
     });
 
+    console.log('[UPLOAD] Upload successful:', result.secure_url);
     res.status(200).json({
       success: true,
       data: {
@@ -69,7 +88,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Upload error:', error);
+    console.error('[UPLOAD] Error:', error);
     res.status(500).json({
       success: false,
       message: 'Upload failed',
