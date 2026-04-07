@@ -84,6 +84,20 @@ export default async function handler(req, res) {
       .map((tag) => tag.trim())
       .filter(Boolean);
 
+    let imageUrls = [];
+    if (fields.imageUrls) {
+      try {
+        imageUrls = typeof fields.imageUrls === 'string'
+          ? JSON.parse(fields.imageUrls)
+          : fields.imageUrls;
+      } catch (error) {
+        imageUrls = [String(fields.imageUrls)];
+      }
+      if (!Array.isArray(imageUrls)) {
+        imageUrls = [String(imageUrls)];
+      }
+    }
+
     if (!title || !content) {
       return res.status(400).json({ success: false, message: 'Title and content are required' });
     }
@@ -97,6 +111,7 @@ export default async function handler(req, res) {
       category,
       problemType,
       tags,
+      imageUrls,
       author,
       replies: [],
       views: 0,

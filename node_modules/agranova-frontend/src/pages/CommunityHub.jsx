@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -62,6 +62,9 @@ const CommunityHub = () => {
     description: '',
     category: 'general-questions'
   });
+  const imageInputRef = useRef(null);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
 
   const [replyText, setReplyText] = useState('');
 
@@ -115,6 +118,10 @@ const CommunityHub = () => {
         tags: []
       };
 
+      if (selectedImages.length) {
+        postData.imageUrls = selectedImages.map((item) => item.url);
+      }
+
       await api.post('/discussions', postData);
       toast.success('Problem posted successfully!');
       
@@ -124,11 +131,51 @@ const CommunityHub = () => {
         description: '',
         category: 'general-questions'
       });
+      setSelectedImages([]);
       setShowPostForm(false);
       fetchDiscussions();
     } catch (error) {
       console.error('Error creating post:', error);
       toast.error('Failed to post problem');
+    }
+  };
+
+  const handleAddPhotoClick = () => {
+    imageInputRef.current?.click();
+  };
+
+  const handleImageChange = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    setIsUploadingImages(true);
+    try {
+      const uploadedImages = [];
+
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'image');
+
+        const response = await api.post('/upload', formData);
+        if (!response.data.success) {
+          throw new Error(response.data.message || 'Upload failed');
+        }
+
+        uploadedImages.push({
+          fileName: file.name,
+          url: response.data.data.url
+        });
+      }
+
+      setSelectedImages((prev) => [...prev, ...uploadedImages]);
+      toast.success(`${uploadedImages.length} photo(s) uploaded`);
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast.error('Failed to upload photo(s)');
+    } finally {
+      if (imageInputRef.current) imageInputRef.current.value = null;
+      setIsUploadingImages(false);
     }
   };
 
@@ -338,14 +385,31 @@ const CommunityHub = () => {
                       required
                     />
 
+                    <input
+                      ref={imageInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleImageChange}
+                    />
+
+                    {selectedImages.length > 0 && (
+                      <p className="text-sm text-gray-600 mt-2">
+                        {selectedImages.length} photo(s) ready to attach
+                      </p>
+                    )}
+
                     {/* Actions */}
                     <div className="flex items-center justify-between">
                       <button
                         type="button"
-                        className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-white transition-colors"
+                        onClick={handleAddPhotoClick}
+                        disabled={isUploadingImages}
+                        className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <ImageIcon className="w-4 h-4" />
-                        Add Photo
+                        {isUploadingImages ? 'Uploading...' : 'Add Photo'}
                       </button>
                       
                       <div className="flex gap-3">
