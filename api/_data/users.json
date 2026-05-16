@@ -3,21 +3,21 @@
     "_id": "1",
     "email": "demo@agranova.com",
     "name": "Demo User",
-     "password": "08d9d3fb14c8ee87b02461ed31c87643:cb5fe68eaa5346c056834ab9b0a285bd403854c26161df432be467ef4df966d482adec23fc0fd7cd7258fcee9b47d88b5871c1f8a82f9712b4fac5fc73024a48",
+    "password": "0e790026e28846b57c56f8d716ff078e:0efbd68d7ae66600c5e984905676b55bc502b55aa5e405c94c084cde586d9b9e7acdbfb83a4d281fc7861b0512dc630e2aa9a1b333913cc3ea2036a66623b637",
     "role": "user"
   },
   "admin@agranova.com": {
     "_id": "2",
     "email": "admin@agranova.com",
     "name": "Admin User",
-     "password": "7346a87a7513cd2286a08330107465c0:e99954469e474f6b1d9c82c49ac3bf53ceb22ed2f06f5f4b6248d3abde3ab3d43f930c9deaffa7e24a982b0c93ce00d7cc215bab2d953d44ec4d81dcdda2d173",
+    "password": "6324fc01f9fea11a177d3147abad32ab:2db1e676bb3120b6da361fb04dc68c44c90181f3b8bd3306c6cf608251dccb14a87a1eefa46aa89110bfff5906472b2857591d539e89cdc78db45d143ff29c78",
     "role": "admin"
   },
   "testuser@example.com": {
     "_id": "3",
     "email": "testuser@example.com",
     "name": "Test User",
-     "password": "2c8adc005353a057c505bd6b6f74cb07:620c2e3f64b7137a9a45ccdc301fce38f3cce79281cf03e4d8585dd128eec4221f08734107b005d2daae7267d0ca140608d0ea1ec48f50823f034bc5e9b7e072",
+    "password": "18dc0c792d61d8f324e1241e9910a099:712ec6894491995c1f9f67f3f96a3ad5be8bb182d6265454c1e26b6172c795b3f3da4549a81a2a52a771a629efb8c84b472e46119fa00a29c01ac2d7cd53b850",
     "role": "user"
   }
 }

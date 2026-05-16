@@ -1,8 +1,10 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 const TMP_USERS_PATH = '/tmp/users.json';
-const BUILTIN_USERS_PATH = path.resolve(process.cwd(), 'api', '_data', 'users.json');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const BUILTIN_USERS_PATH = path.resolve(__dirname, '..', '_data', 'users.json');
 
 let cachedUsers = null;
 
