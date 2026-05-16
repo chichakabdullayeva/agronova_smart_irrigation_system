@@ -27,7 +27,18 @@ export default async function handler(req, res) {
     });
   }
 
-  const { name, email, region } = await parseJsonBody(req);
+  let name;
+  let email;
+  let region;
+
+  try {
+    ({ name, email, region } = await parseJsonBody(req));
+  } catch (error) {
+    return res.status(error.statusCode || 400).json({
+      success: false,
+      message: error.message || 'Invalid request body'
+    });
+  }
 
   // Mock profile update
   const updatedUser = {

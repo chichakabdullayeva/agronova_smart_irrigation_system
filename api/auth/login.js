@@ -19,7 +19,17 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 
-  const { email, password } = await parseJsonBody(req);
+  let email;
+  let password;
+
+  try {
+    ({ email, password } = await parseJsonBody(req));
+  } catch (error) {
+    return res.status(error.statusCode || 400).json({
+      success: false,
+      message: error.message || 'Invalid request body'
+    });
+  }
 
   if (!email || !password) {
     return res.status(400).json({
