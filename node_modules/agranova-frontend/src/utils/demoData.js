@@ -6,52 +6,78 @@ export const DEMO_USERS = [
     role: 'admin',
     region: 'baku',
     crops: ['Tomatoes', 'Wheat'],
+    farmName: 'Agranova HQ',
     createdAt: '2026-01-03T10:00:00.000Z'
   },
   {
     _id: 'demo-user-2',
     name: 'Rashad Mammadov',
     email: 'rashad@farmer.com',
-    role: 'user',
+    role: 'farmer',
     region: 'ganja',
     crops: ['Cotton', 'Barley'],
+    farmName: 'Ganja Green Farm',
     createdAt: '2026-01-05T09:30:00.000Z'
   },
   {
     _id: 'demo-user-3',
     name: 'Leyla Hasanova',
     email: 'leyla@farm.az',
-    role: 'user',
+    role: 'farmer',
     region: 'sheki',
     crops: ['Grapes', 'Apples'],
+    farmName: 'Sheki Orchard',
     createdAt: '2026-01-07T08:15:00.000Z'
   },
   {
     _id: 'demo-user-4',
     name: 'Kamran Aliyev',
     email: 'kamran@agro.az',
-    role: 'user',
+    role: 'farmer',
     region: 'lankaran',
     crops: ['Tea', 'Rice'],
+    farmName: 'Lankaran Fields',
     createdAt: '2026-01-10T11:45:00.000Z'
   },
   {
     _id: 'demo-user-5',
     name: 'Aysel Quliyeva',
     email: 'aysel@agro.az',
-    role: 'user',
+    role: 'farmer',
     region: 'quba',
     crops: ['Hazelnut', 'Potato'],
+    farmName: 'Quba Harvest',
     createdAt: '2026-01-14T14:05:00.000Z'
   },
   {
     _id: 'demo-user-6',
     name: 'Tural Ismayilov',
     email: 'tural@farmer.az',
-    role: 'user',
+    role: 'farmer',
     region: 'shamakhi',
     crops: ['Grapes', 'Wheat'],
+    farmName: 'Shamakhi Estate',
     createdAt: '2026-01-18T13:25:00.000Z'
+  },
+  {
+    _id: 'demo-user-7',
+    name: 'Nigar Abbasova',
+    email: 'nigar@agrotech.az',
+    role: 'farmer',
+    region: 'goychay',
+    crops: ['Pomegranates', 'Vegetables'],
+    farmName: 'Goychay Agrotech',
+    createdAt: '2026-01-22T08:40:00.000Z'
+  },
+  {
+    _id: 'demo-user-8',
+    name: 'Murad Huseynov',
+    email: 'murad@ecoagro.az',
+    role: 'user',
+    region: 'jalilabad',
+    crops: ['Sunflowers', 'Corn'],
+    farmName: 'Jalilabad Agro',
+    createdAt: '2026-01-25T12:15:00.000Z'
   }
 ];
 
@@ -160,6 +186,9 @@ export const buildDemoDevices = (users, regionCoordinates, regionLabel) => {
       ownerId: user._id,
       ownerName: user.name,
       ownerEmail: user.email,
+      ownerRole: user.role || 'user',
+      ownerCrops: user.crops || [],
+      ownerFarm: user.farmName || `${regionLabel(region)} Farm`,
       region,
       location: {
         lat: coordinates[0] + (Math.random() - 0.5) * 0.4,

@@ -93,30 +93,16 @@ const AdminDevices = () => {
       setLoading(true);
       const response = await adminAPI.getAllUsers();
       const users = response.data.data || [];
-      const simulatedDevices = buildDemoDevices(users, getRegionCoordinates, getRegionLabel);
 
-      setDevices(simulatedDevices);
-      setFilteredDevices(simulatedDevices);
-
-      // Calculate stats
-      setStats({
-        total: simulatedDevices.length,
-        active: simulatedDevices.filter(d => d.status === 'Active').length,
-        offline: simulatedDevices.filter(d => d.status === 'Offline').length,
-        maintenance: simulatedDevices.filter(d => d.status === 'Maintenance').length
-      });
-
+      if (!users.length) {
+        toast('No users found, loading demo devices.', { icon: '🧪' });
+        loadDemoData();
+      } else {
+        loadDemoData(users);
+      }
     } catch (error) {
-      const simulatedDevices = buildDemoDevices(DEMO_USERS, getRegionCoordinates, getRegionLabel);
-      setDevices(simulatedDevices);
-      setFilteredDevices(simulatedDevices);
-      setStats({
-        total: simulatedDevices.length,
-        active: simulatedDevices.filter(d => d.status === 'Active').length,
-        offline: simulatedDevices.filter(d => d.status === 'Offline').length,
-        maintenance: simulatedDevices.filter(d => d.status === 'Maintenance').length
-      });
-      toast('Showing demo devices data', { icon: '🧪' });
+      toast('Unable to load users, loading demo devices.', { icon: '🧪' });
+      loadDemoData();
       console.error(error);
     } finally {
       setLoading(false);
@@ -159,6 +145,18 @@ const AdminDevices = () => {
       default:
         return 'bg-gray-100 text-gray-700 border-gray-300';
     }
+  };
+
+  const loadDemoData = (users = DEMO_USERS) => {
+    const simulatedDevices = buildDemoDevices(users, getRegionCoordinates, getRegionLabel);
+    setDevices(simulatedDevices);
+    setFilteredDevices(simulatedDevices);
+    setStats({
+      total: simulatedDevices.length,
+      active: simulatedDevices.filter(d => d.status === 'Active').length,
+      offline: simulatedDevices.filter(d => d.status === 'Offline').length,
+      maintenance: simulatedDevices.filter(d => d.status === 'Maintenance').length
+    });
   };
 
   const viewDeviceDetails = (device) => {
@@ -276,6 +274,16 @@ const AdminDevices = () => {
                 <MapIcon className="w-4 h-4 mr-2" />
                 Map View
               </button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+              <button
+                onClick={() => loadDemoData()}
+                className="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+              >
+                Load Demo Data
+              </button>
+              <p className="text-sm text-gray-500">Use demo device and owner info for admin preview.</p>
             </div>
           </div>
 
@@ -622,7 +630,21 @@ const AdminDevices = () => {
                   <div className="p-4 bg-gray-50 rounded-lg">
                     <p className="text-sm text-gray-500 mb-2">Owner Information</p>
                     <p className="text-base font-medium text-gray-900">{selectedDevice.ownerName}</p>
-                    <p className="text-sm text-gray-600">{selectedDevice.ownerEmail}</p>
+                    <p className="text-sm text-gray-600 mb-2">{selectedDevice.ownerEmail}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-700 block mb-1">Role:</span>
+                        <span className="font-medium text-gray-900 capitalize">{selectedDevice.ownerRole}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-700 block mb-1">Farm:</span>
+                        <span className="font-medium text-gray-900">{selectedDevice.ownerFarm}</span>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <span className="text-gray-700 block mb-1">Crops:</span>
+                        <span className="font-medium text-gray-900">{selectedDevice.ownerCrops.join(', ')}</span>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="p-4 bg-gray-50 rounded-lg">
