@@ -1,5 +1,5 @@
 import { parseJsonBody } from '../_utils/bodyParser.js';
-import { getAllUsers, signToken } from '../_utils/auth.js';
+import { getAllUsers, signToken, verifyPassword } from '../_utils/auth.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   const users = await getAllUsers();
   const user = users[normalizedEmail];
 
-  if (!user) {
+  if (!user || !verifyPassword(password, user.password)) {
     return res.status(401).json({
       success: false,
       message: 'Invalid email or password'

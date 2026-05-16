@@ -1,8 +1,29 @@
 import jwt from 'jsonwebtoken';
 import { loadUsers } from './userStore.js';
 import { normalizeEmail } from './userStore.js';
+import crypto from 'crypto';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'agranova_secret_key_2026';
+
+export function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const derived = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+  return `${salt}:${derived}`;
+}
+
+export function verifyPassword(password, hashedPassword) {
+  if (!hashedPassword) {
+    return false;
+  }
+
+  if (!hashedPassword.includes(':')) {
+    return password === hashedPassword;
+  }
+
+  const [salt, key] = hashedPassword.split(':');
+  const derived = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+  return derived === key;
+}
 
 const baseUsers = {
   'demo@agranova.com': { _id: '1', email: 'demo@agranova.com', name: 'Demo User', role: 'user' },

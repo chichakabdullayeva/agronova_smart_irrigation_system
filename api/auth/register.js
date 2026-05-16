@@ -1,6 +1,6 @@
 import { parseJsonBody } from '../_utils/bodyParser.js';
 import { loadUsers, saveUsers } from '../_utils/userStore.js';
-import { signToken } from '../_utils/auth.js';
+import { signToken, hashPassword } from '../_utils/auth.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 
-  const { email, password, name } = await parseJsonBody(req);
+  const { email, password, name, region } = await parseJsonBody(req);
 
   if (!email || !password || !name) {
     return res.status(400).json({
@@ -43,7 +43,9 @@ export default async function handler(req, res) {
     _id: Date.now().toString(),
     email: normalizedEmail,
     name,
-    role: 'user'
+    role: 'user',
+    region: region || '',
+    password: hashPassword(password)
   };
 
   existingUsers[normalizedEmail] = newUser;
