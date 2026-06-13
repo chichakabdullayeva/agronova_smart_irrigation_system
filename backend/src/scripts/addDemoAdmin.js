@@ -8,13 +8,22 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/agrano
 async function addDemoAdmin() {
   try {
     console.log('🌱 Connecting to MongoDB...');
-    await mongoose.connect(MONGODB_URI);
+    console.log(`📍 Connection string: ${MONGODB_URI}`);
+    
+    // Set connection timeout to 5 seconds
+    await mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 5000,
+      retryWrites: false
+    });
     console.log('✅ Connected to MongoDB');
 
     // Check if demo admin already exists
     const existingAdmin = await User.findOne({ email: 'demo@agranova.com' });
     if (existingAdmin) {
       console.log('⚠️  Demo admin account already exists');
+      console.log(`   Email: ${existingAdmin.email}`);
+      console.log(`   Role: ${existingAdmin.role}`);
       await mongoose.connection.close();
       return;
     }
@@ -42,8 +51,17 @@ async function addDemoAdmin() {
     console.log(`   Region: ${createdAdmin.region}`);
 
     await mongoose.connection.close();
+    console.log('✅ Connection closed');
   } catch (error) {
-    console.error('❌ Error adding demo admin:', error.message);
+    if (error.message.includes('connect ECONNREFUSED')) {
+      console.error('❌ MongoDB connection failed - MongoDB server is not running');
+      console.error('\n📋 To fix this:');
+      console.error('   Option 1: Start MongoDB service');
+      console.error('   Option 2: Set MONGODB_URI in .env to a MongoDB Atlas cloud instance');
+      console.error('   Option 3: Ensure MongoDB is installed and running on localhost:27017');
+    } else {
+      console.error('❌ Error adding demo admin:', error.message);
+    }
     process.exit(1);
   }
 }
