@@ -7,6 +7,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node src/scripts/seedData.js",
+    "seed:comprehensive": "node src/scripts/seedComprehensive.js",
     "add-demo-admin": "node src/scripts/addDemoAdmin.js",
     "build": "echo 'Backend build complete'"
   },
