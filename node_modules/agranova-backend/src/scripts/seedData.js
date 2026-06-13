@@ -21,6 +21,7 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/agrano
 
 const users = [
   { name: 'Admin User', email: 'admin@agranova.com', password: 'admin123', role: 'admin', region: 'Baku', crops: ['Tomatoes', 'Wheat'] },
+  { name: 'Demo Admin', email: 'demo@agranova.com', password: 'demo123', role: 'admin', region: 'Baku', crops: ['All Crops'] },
   { name: 'Rashad Mammadov', email: 'rashad@farmer.com', password: 'user123', role: 'user', region: 'Ganja', crops: ['Cotton', 'Barley'] },
   { name: 'Leyla Hasanova', email: 'leyla@farm.az', password: 'user123', role: 'user', region: 'Sheki', crops: ['Grapes', 'Apples'] },
   { name: 'Kamran Aliyev', email: 'kamran@agro.az', password: 'user123', role: 'user', region: 'Lankaran', crops: ['Tea', 'Rice'] },
